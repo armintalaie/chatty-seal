@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, Theme } from "./theme";
+import { Theme } from "./theme";
 
 export interface Configration {
   theme: Theme;
@@ -22,20 +22,3 @@ interface SpaceConfig {
 }
 
 interface UsersConfig {}
-
-export const DEFAULT_CONFIG: Configration = {
-  theme: DEFAULT_THEME,
-  rooms: {
-    showInvite: true,
-    maxRoomMembers: 3,
-    showLeave: true,
-    chatBackup: true,
-    allowNonSpaceUsers: true,
-    infoMessage: "",
-  },
-  users: {},
-  space: {
-    canCustomize: true,
-    showAppName: true,
-  },
-};

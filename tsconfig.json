@@ -10,10 +10,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true
   },
-  "extends": "@tsconfig/node16/tsconfig.json",
   "include": ["src"],
   "exclude": ["node_modules"]
 }

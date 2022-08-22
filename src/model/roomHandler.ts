@@ -1,8 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-import { BroadcastOperator, Event, Socket } from "socket.io";
-import { Message } from "../controller/chatServer";
-import { stringify } from "querystring";
-
 export class Room {
   private users: User[] = [];
   name: string = "Room";

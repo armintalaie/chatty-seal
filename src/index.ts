@@ -1,11 +1,13 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { router } from "./controller/clientAPI";
+import { router } from "./controller/api";
 import cors from "cors";
-import { SpaceManager, ISpaceManager } from "./model/spaceManager";
-import { ChatServer, ChatServerInterface } from "./controller/chatServer";
+import { SpaceManager, ISpaceManager } from "./controller/spaceManager";
+import * as dotenv from "dotenv";
+dotenv.config();
 
+// Configure API
 const app = express();
 const allowedOrigins = [
   "https://chatty-seal-ui.herokuapp.com",
@@ -16,18 +18,14 @@ const options: cors.CorsOptions = {
 };
 app.use(cors(options));
 app.use(express.json());
-const port = process.env.PORT || 8080;
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
 const spaceManager: ISpaceManager = new SpaceManager(io);
-const chatServer: ChatServerInterface = new ChatServer(io, spaceManager);
-chatServer.run();
-
 app.use("/spaces", router);
 
-// start the express server
+// Start server
+const port = process.env.PORT || 8080;
 server.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 });

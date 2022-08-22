@@ -1,8 +1,9 @@
-import { DEFAULT_LIMITATION, Limitation } from "./limitation";
+import { Limitation } from "./limitation";
 import { v4 as uuidv4 } from "uuid";
-import { Configration, DEFAULT_CONFIG } from "./configuration";
+import { Configration } from "./configuration";
 import { Namespace, Socket } from "socket.io";
-import { IUser, Room } from "./roomHandler";
+import { IUser, Room } from "../roomHandler";
+import { DEFAULT_CONFIG, DEFAULT_LIMITATION } from "../constants";
 
 export interface SpaceInfo {
   domainId: string;
@@ -13,7 +14,7 @@ export interface SpaceInfo {
   rooms: string[];
 }
 
-export interface SpaceI {
+export interface ISpace {
   domainId: string;
   createRoom(name: string): string;
   getRooms(): Room[];
@@ -30,7 +31,7 @@ export interface SpaceI {
   sendMessage(roomId: string, userId: string, message: string): void;
 }
 
-export class Space implements SpaceI {
+export class Space implements ISpace {
   private namespace: Namespace;
   domainId: string;
   private name: string;
@@ -48,10 +49,11 @@ export class Space implements SpaceI {
     this.domainId = id;
     this.clientSecret = uuidv4();
     this.configuration = Object.assign({}, DEFAULT_CONFIG);
-    this.limitation = Object.assign(DEFAULT_LIMITATION, {});
+    this.limitation = Object.assign({}, DEFAULT_LIMITATION);
     this.namespace = namespace;
     this.handleSpaceConnections();
   }
+
   getRooms(): Room[] {
     return this.rooms.map((room) => room.getRoomInfo());
   }
@@ -164,5 +166,3 @@ export class Space implements SpaceI {
     this.configuration = Object.assign(this.configuration, configuration);
   }
 }
-
-class NamespaceManager {}
