@@ -11,7 +11,7 @@ router.post("/", (req, res) => {
     const spaceInfo = spaceManager.createSpace(domainName);
     res.status(200).send(spaceInfo);
   } catch (e) {
-    res.send(400).send(e);
+    res.status(400).send((e as Error).message);
   }
 });
 

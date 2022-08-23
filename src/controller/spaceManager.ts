@@ -24,10 +24,10 @@ export class SpaceManager implements ISpaceManager {
   private readonly db: Db;
   private spaceDB;
 
-  constructor(server: Server) {
+  constructor(server: Server, dbConnection: MongoClient) {
     const databse_uri: string = process.env.DB!;
     console.log(databse_uri);
-    this.db = new MongoClient(databse_uri).db("chatty-seal");
+    this.db = dbConnection.db("chatty-seal");
     this.spaceDB = this.db.collection<SpaceInfo>("spaces");
     this.server = server;
     this.activateSpaces();
