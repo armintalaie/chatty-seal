@@ -12,8 +12,9 @@ export interface ISpaceManager {
   getSpaceConfiguration(domainId: string): Promise<Configration>;
   updateSpaceConfiguration(
     domainId: string,
-    newConfiguration: Configration
-  ): Promise<Configration>;
+    newConfiguration: Configration,
+    clientSecret: string
+  ): Promise<void>;
 }
 
 export class SpaceManager implements ISpaceManager {
@@ -28,7 +29,18 @@ export class SpaceManager implements ISpaceManager {
     this.db = new MongoClient(databse_uri).db("chatty-seal");
     this.spaceDB = this.db.collection<SpaceInfo>("spaces");
     this.server = server;
+    this.activateSpaces();
     this.handleSpaceConnections();
+  }
+
+  private async activateSpaces() {
+    const savedSpaces = await this.spaceDB.find<SpaceInfo>({}).toArray();
+    savedSpaces.forEach((sp) => {
+      const id = sp.domainId;
+      const namespace = this.server.of(`/${id}`);
+      const space: ISpace = new Space(sp.name, id, namespace);
+      this.activeSpaces[id] = space;
+    });
   }
 
   public createSpace(domainname: string) {
@@ -75,7 +87,16 @@ export class SpaceManager implements ISpaceManager {
   }
 
   public async getSpaceConfiguration(domainId: string): Promise<Configration> {
-    return (await this.getSpace(domainId)).configuration;
+    const config = await this.spaceDB.findOne<Configration>(
+      { domainId: domainId },
+      { projection: { _id: 0, configuration: 1 } }
+    );
+
+    if (!config) {
+      throw new Error("No Space associated with that domain id and/or passkey");
+    }
+
+    return config;
   }
 
   handleSpaceConnections() {
@@ -86,9 +107,20 @@ export class SpaceManager implements ISpaceManager {
 
   public async updateSpaceConfiguration(
     domainId: string,
-    newConfiguration: Configration
-  ): Promise<Configration> {
-    // (await this.getSpace(domainId)).updateSpaceConfiguration(newConfiguration);
-    return (await this.getSpace(domainId)).configuration;
+    newConfig: Configration,
+    clientSecret: string
+  ): Promise<void> {
+    const res = await this.spaceDB.updateOne(
+      { domainId: domainId, clientSecret: clientSecret },
+      {
+        $set: {
+          configuration: newConfig,
+        },
+      }
+    );
+
+    if (res.modifiedCount === 0) {
+      throw new Error("Could not complete request");
+    }
   }
 }

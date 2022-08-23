@@ -22,10 +22,7 @@ export interface ISpace {
   joinRoom(user: IUser, roomId: string, socket: Socket): void;
   deleteRoom(roomId: string): void;
   getSpaceConfiguration(): Configration;
-  updateSpaceConfiguration(
-    configuration: Configration,
-    clientSecret: string
-  ): void;
+  updateSpaceConfiguration(configuration: Configration, clientSecret: string): void;
   getSpaceInfo(clientSecret?: string): SpaceInfo;
   getSpaceSecret(): string;
   sendMessage(roomId: string, userId: string, message: string): void;
@@ -70,12 +67,12 @@ export class Space implements ISpace {
 
   handleSpaceConnections() {
     this.namespace.on("connection", async (socket) => {
-      socket.on("room:leave", (roomId) => {
-        this.leaveRoom(roomId, socket);
-      });
-
       socket.on("rooms", (domainId) => {
         socket.emit("rooms", this.getRooms());
+      });
+
+      socket.on("room:leave", (roomId) => {
+        this.leaveRoom(roomId, socket);
       });
 
       socket.on("room", (args) => {
@@ -94,13 +91,13 @@ export class Space implements ISpace {
       });
 
       socket.on("message", (domainId, roomId, message) => {
-        const messageToSend2 = {
+        const toSend = {
           text: message,
           date: Date(),
-          username: "USER",
-          displayName: "USER",
+          username: socket.id,
+          displayName: socket.id,
         };
-        socket.to(roomId).emit("message", messageToSend2);
+        socket.to(roomId).emit("message", toSend);
       });
     });
   }
@@ -141,9 +138,7 @@ export class Space implements ISpace {
   }
 
   leaveRoom(roomId: string, socket: Socket): void {
-    const room: Room | undefined = this.rooms.find(
-      (room) => room.id === roomId
-    );
+    const room: Room | undefined = this.rooms.find((room) => room.id === roomId);
     if (!room) {
       throw new Error("NO room found");
     }
