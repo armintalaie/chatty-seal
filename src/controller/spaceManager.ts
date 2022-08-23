@@ -76,7 +76,6 @@ export class SpaceManager implements ISpaceManager {
       {
         projection: {
           _id: 0,
-          clientSecret: clientSecret !== undefined,
         },
       }
     );
