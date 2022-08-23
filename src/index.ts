@@ -24,11 +24,11 @@ app.use("/spaces", router);
 
 // Start server
 const port = process.env.PORT || 8080;
-const databse_uri = process.env.DB;
-const dbConection = new MongoClient(databse_uri!);
 let spaceManager: ISpaceManager;
 
 try {
+  const databse_uri = process.env.DB;
+  const dbConection = new MongoClient(databse_uri!);
   dbConection.connect().then((res) => {
     spaceManager = new SpaceManager(io, dbConection);
     server.listen(port, () => {
